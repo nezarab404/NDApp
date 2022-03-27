@@ -13,7 +13,7 @@ require('chai')
     )
   }
 
-contract('Nezz Token', ([deployer, receiver]) => {
+contract('Nezz Token', ([deployer, receiver,exchange]) => {
   const name = 'Nezz Token'
   const symbol = 'Nezz'
   const decimals = '18'
@@ -75,13 +75,13 @@ contract('Nezz Token', ([deployer, receiver]) => {
         balanceOf.toString().should.equal(tokens(100).toString())
       })
 
-      it('emit a transfer event' , async()=>{
+      it('emit a Transfer event' , async()=>{
          const log = result.logs[0]
          log.event.should.equal('Transfer')
          const event = log.args
-         event.from.toString().should.equal(deployer,'from is correct')
-         event.to.toString().should.equal(receiver,'to is correct')
-         event.value.toString().should.equal(amount.toString(),'value is correct')
+         event._from.toString().should.equal(deployer,'from is correct')
+         event._to.toString().should.equal(receiver,'to is correct')
+         event._value.toString().should.equal(amount.toString(),'value is correct')
       })
     // logs[0] =>>>>>
     //   {
@@ -122,6 +122,39 @@ contract('Nezz Token', ([deployer, receiver]) => {
       })
     })
 
+  })
+
+  describe('approving tokens' , ()=>{
+    let amount
+    let result
+
+    beforeEach(async ()=>{
+      amount = tokens(100)
+      result = await token.approve(exchange, amount,{from:deployer})
+    })
+
+    describe('success',()=>{
+      it('allocates an allowance for delegated token spending on exchange' , async()=>{
+        const allowance = await token.allowance(deployer,exchange)
+        allowance.toString().should.equal(amount.toString())
+      })
+
+      it('emit an Approval event' , async()=>{
+        const log = result.logs[0]
+        log.event.should.equal('Approval')
+        const event = log.args
+        event._owner.toString().should.equal(deployer,'owner is correct')
+        event._spender.toString().should.equal(exchange,'spender is correct')
+        event._value.toString().should.equal(amount.toString(),'value is correct')
+     })
+
+    })
+
+    describe('falier',()=>{
+      it('rejects invalid spender address', async()=>{
+        await token.approve(0x0,amount,{from:deployer}).should.be.rejected
+      })
+    })
   })
 
 })
