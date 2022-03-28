@@ -107,7 +107,7 @@ contract('Nezz Token', ([deployer, receiver, exchange]) => {
 
     })
 
-    describe('failer', async () => {
+    describe('failure', async () => {
       it('rejects insufficient balances', async () => {
         let invalidAmount = tokens(100000000) //greater than totalSupply
         await token.transfer(receiver, invalidAmount, { from: deployer }).should.be.rejectedWith(EVM_REVERT);
@@ -150,7 +150,7 @@ contract('Nezz Token', ([deployer, receiver, exchange]) => {
 
     })
 
-    describe('falier', () => {
+    describe('failure', () => {
       it('rejects invalid spender address', async () => {
         await token.approve(0x0, amount, { from: deployer }).should.be.rejected
       })
@@ -194,7 +194,7 @@ contract('Nezz Token', ([deployer, receiver, exchange]) => {
 
     })
 
-    describe('failer', async () => {
+    describe('failure', async () => {
       it('rejects insufficient balances', async () => {
         let invalidAmount = tokens(100000000) //greater than totalSupply
         await token.transferFrom(deployer, receiver, invalidAmount, { from: exchange }).should.be.rejectedWith(EVM_REVERT);
