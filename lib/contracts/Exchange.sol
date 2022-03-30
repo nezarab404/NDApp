@@ -9,7 +9,19 @@ contract Exchange {
     address public feeAccount; //the account who received fees
     uint256 public feePercent;
     address constant ETHER = address(0);
+    uint256 public _orderCount;
     mapping(address => mapping(address => uint256)) public tokens;
+    mapping(uint256 => _Order) public orders;
+
+    struct _Order {
+        uint256 id;
+        address user; //the person who made the order
+        address tokenGet; //the address of the token they want to purchase
+        uint256 amountGet; //the amount of the token they want to purchase
+        address tokenGive; //the token they gonna use in the treat
+        uint256 amountGive; //the amount they gonna give
+        uint256 timestamp;
+    }
 
     event Deposit(
         address _token,
@@ -22,6 +34,15 @@ contract Exchange {
         address _user,
         uint256 _amount,
         uint256 _balance
+    );
+    event Order(
+        uint256 id,
+        address user,
+        address tokenGet,
+        uint256 amountGet,
+        address tokenGive,
+        uint256 amountGive,
+        uint256 timestamp
     );
 
     constructor(address _feeAccount, uint256 _feePercent) {
@@ -56,16 +77,46 @@ contract Exchange {
 
     function withdrawToken(address _token, uint256 _amount) public {
         require(_token != ETHER);
-        require(tokens[_token][msg.sender]>= _amount);
+        require(tokens[_token][msg.sender] >= _amount);
         tokens[_token][msg.sender] = tokens[_token][msg.sender].sub(_amount);
         require(NToken(_token).transfer(msg.sender, _amount));
         emit Withdraw(_token, msg.sender, _amount, tokens[_token][msg.sender]);
     }
 
-    function balanceOf(address _token,address _user)public view returns(uint256) {
+    function balanceOf(address _token, address _user)
+        public
+        view
+        returns (uint256)
+    {
         return tokens[_token][_user];
     }
 
+    function makeOrder(
+        address _tokenGet,
+        uint256 _amountGet,
+        address _tokenGive,
+        uint256 _amountGive
+    ) public {
+        _orderCount = _orderCount.add(1);
+        orders[_orderCount] = _Order(
+            _orderCount,
+            msg.sender,
+            _tokenGet,
+            _amountGet,
+            _tokenGive,
+            _amountGive,
+            block.timestamp
+        );
+        emit Order(
+            _orderCount,
+            msg.sender,
+            _tokenGet,
+            _amountGet,
+            _tokenGive,
+            _amountGive,
+            block.timestamp
+        );
+    }
 }
 
 //TODO:
@@ -74,8 +125,8 @@ contract Exchange {
 //[x] withdraw tokens
 //[x] deposit ether
 //[x] withdraw ether
-//[] check balances
-//[] make order
+//[x] check balances
+//[x] make order
 //[] cancel order
 //[] fill order
 //[] charge fees
