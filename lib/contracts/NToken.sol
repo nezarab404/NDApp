@@ -18,7 +18,7 @@ contract NToken {
         uint256 _value
     );
 
-    constructor(){
+    constructor() {
         totalSupply = 1000000 * (10**decimals); //the total supply is
         balanceOf[msg.sender] = totalSupply; //the one has created of the token have all of it's
         // the sender is the one how deploy the contract
@@ -77,6 +77,17 @@ library SafeMath {
         uint256 c = a + b;
         assert(c >= a);
         return c;
+    }
+
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a * b;
+    }
+
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        unchecked {
+            require(b > 0);
+            return a / b;
+        }
     }
 
     //  function sub(

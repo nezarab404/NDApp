@@ -13,6 +13,7 @@ contract Exchange {
     mapping(address => mapping(address => uint256)) public tokens;
     mapping(uint256 => _Order) public orders;
     mapping(uint256 => bool) public canceldOrders;
+    mapping(uint256 => bool) public filledOrders;
 
     struct _Order {
         uint256 id;
@@ -52,6 +53,16 @@ contract Exchange {
         uint256 amountGet,
         address tokenGive,
         uint256 amountGive,
+        uint256 timestamp
+    );
+    event Trade(
+        uint256 id,
+        address user,
+        address tokenGet,
+        uint256 amountGet,
+        address tokenGive,
+        uint256 amountGive,
+        address userFill,
         uint256 timestamp
     );
 
@@ -128,12 +139,63 @@ contract Exchange {
         );
     }
 
-    function cancelOrder(uint256 _id) public{
+    function cancelOrder(uint256 _id) public {
         _Order storage _order = orders[_id];
         require(address(_order.user) == msg.sender);
         require(_order.id == _id);
         canceldOrders[_id] = true;
-        emit Cancel(_id, msg.sender, _order.tokenGet, _order.amountGet, _order.tokenGive, _order.amountGive, _order.timestamp);
+        emit Cancel(
+            _id,
+            msg.sender,
+            _order.tokenGet,
+            _order.amountGet,
+            _order.tokenGive,
+            _order.amountGive,
+            _order.timestamp
+        );
+    }
+
+    function fillOrder(uint256 _id) public {
+        require(_id > 0 && _id <= _orderCount);
+        require(!filledOrders[_id]);
+        require(!canceldOrders[_id]);
+        _Order storage _order = orders[_id];
+        _trade(_order);
+        filledOrders[_id] = true;
+    }
+
+    function _trade(_Order storage _order) internal {
+        ///Fee paid by the user that fills the order, a.k.a [msg.sender]
+        // Fee deducted from _amountGet
+        uint256 _feeAmount = _order.amountGive.mul(feePercent).div(100);
+
+        //execute trade
+        tokens[_order.tokenGet][msg.sender] = tokens[_order.tokenGet][
+            msg.sender
+        ].sub(_order.amountGet.add(_feeAmount));
+        tokens[_order.tokenGet][_order.user] = tokens[_order.tokenGet][
+            _order.user
+        ].add(_order.amountGet);
+        tokens[_order.tokenGet][feeAccount] = tokens[_order.tokenGet][
+            feeAccount
+        ].add(_feeAmount);
+        tokens[_order.tokenGive][_order.user] = tokens[_order.tokenGive][
+            _order.user
+        ].sub(_order.amountGive);
+        tokens[_order.tokenGive][msg.sender] = tokens[_order.tokenGive][
+            msg.sender
+        ].add(_order.amountGive);
+
+        emit Trade(
+            _order.id,
+            _order.user,
+            _order.tokenGet,
+            _order.amountGet,
+            _order.tokenGive,
+            _order.amountGive,
+            msg.sender,
+            block.timestamp
+        );
     }
 }
 
@@ -146,5 +208,5 @@ contract Exchange {
 //[x] check balances
 //[x] make order
 //[x] cancel order
-//[] fill order
-//[] charge fees
+//[x] fill order
+//[x] charge fees
