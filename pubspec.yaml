@@ -36,6 +36,12 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_dotenv: ^5.0.2
   web3dart: ^2.3.5
+  syncfusion_flutter_charts: ^19.4.56
+  shared_preferences: ^2.0.13
+  fluttertoast: ^8.0.9
+  flutter_bloc: ^8.0.1
+  sizer: ^2.0.15
+  http:
 
 dev_dependencies:
   flutter_test:
