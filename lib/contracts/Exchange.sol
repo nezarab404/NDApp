@@ -198,15 +198,3 @@ contract Exchange {
         );
     }
 }
-
-//TODO:
-//[x] set the fee account
-//[x] deposit tokens
-//[x] withdraw tokens
-//[x] deposit ether
-//[x] withdraw ether
-//[x] check balances
-//[x] make order
-//[x] cancel order
-//[x] fill order
-//[x] charge fees

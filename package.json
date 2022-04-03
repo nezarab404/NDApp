@@ -1,7 +1,10 @@
 {
   "dependencies": {
+    "web3":"^1.2.0",
+    "@truffle/hdwallet-provider": "^2.0.4",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
+    "dotenv": "^16.0.0",
     "mocha": "^9.2.2"
   }
 }

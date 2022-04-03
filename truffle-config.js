@@ -1,3 +1,7 @@
+const HDWalletProvider = require('@truffle/hdwallet-provider')
+require('dotenv').config();
+//const privateKeys = process.env.PRIVATE_KEYS || ""
+
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -43,9 +47,21 @@ module.exports = {
     //
     //connect with ganauch
     development: {
-     host: "0.0.0.0",     // Localhost (default: none)
-     port: 7545,            // Standard Ethereum port (default: none)
+     host: "127.0.0.1",     // Localhost (default: none)
+     port: 8545,            // Standard Ethereum port (default: none)
      network_id: "*",       // Any network (default: none)
+    },
+    kovan:{
+      networkCheckTimeout: 1000000,
+      provider:function() {
+        return new HDWalletProvider(
+          process.env.MNEMONIC,
+          `wss://kovan.infura.io/ws/v3/${process.env.INFURA_API_KEY}`
+        )
+      },
+      // gas:5000000,
+      // gasPrice:25000000000,
+      network_id:42
     }
     // Another network with more advanced options...
     // advanced: {
